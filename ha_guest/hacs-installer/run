@@ -1,0 +1,44 @@
+#!/usr/bin/with-contenv bashio
+
+# Tells s6-supervise to exit and not restart this service.
+s6-svc -O .
+
+# Configuration Variables
+HA_CONFIG_DIR="/config"
+HACS_DIR="${HA_CONFIG_DIR}/custom_components/hacs"
+HA_VERSION_FILE="${HA_CONFIG_DIR}/.HA_VERSION"
+
+MAX_RETRIES=10
+RETRY_DELAY=10
+CURRENT_RETRY=0
+
+bashio::log.info "Starting HACS installer service..."
+
+while [ $CURRENT_RETRY -lt $MAX_RETRIES ]; do
+    if [ -f "$HA_VERSION_FILE" ]; then
+        bashio::log.info "Home Assistant initialization found (${HA_VERSION_FILE})."
+        break
+    fi
+    bashio::log.debug "Waiting for HA config... (Retry $((CURRENT_RETRY + 1))/${MAX_RETRIES})"
+    sleep $RETRY_DELAY
+    CURRENT_RETRY=$((CURRENT_RETRY + 1))
+done
+
+if [ ! -f "$HA_VERSION_FILE" ]; then
+    bashio::log.warning "Home Assistant config file ${HA_VERSION_FILE} did not appear after $MAX_RETRIES attempts. Aborting HACS installation."
+    exit 1
+fi
+
+if [ -d "$HACS_DIR" ]; then
+    bashio::log.info "HACS is already installed at ${HACS_DIR}. Skipping installation."
+    exit 0
+fi
+
+if wget -O - https://get.hacs.xyz | bash -; then
+    bashio::log.info "HACS installation completed successfully, restarting this Home Assistant container."
+    s6-svc -d /run/service/ha-guest
+    exit 0
+else
+    bashio::log.error "HACS installation failed! Please check logs for details."
+    exit $?
+fi
