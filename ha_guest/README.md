@@ -26,14 +26,32 @@ A streamlined second Home Assistant instance designed specifically for **limited
 6.  **Start** the add-on.
 7.  Connect to the Home Assistant Guest instance using port 8223 instead o 8123
 8.  HACS is already downloaded,go directly to [Setup HACS integration](https://www.hacs.xyz/docs/use/configuration/basic/#to-set-up-the-hacs-integration)
-9.  Install the [remote_homeassistant](https://github.com/custom-components/remote_homeassistant) integration on both guest and main homeassistant instance, update configuration.yaml file of the latter.
-10. Add
+9.  Install the [remote_homeassistant](https://github.com/custom-components/remote_homeassistant) integration on both guest and main homeassistant instance
+    - On the main instance, generate an access token and add the following lines in the configuration.yaml:
+    ``` yaml
+    remote_homeassistant:
+      instances:
+    ```
+    - On the guest instance, add a new remote_homeassistant using the above token and selectively add entities from the main instance.
 
-*NB*: If required, the config directory of the guest instance can be accessed using the terminal addon of the main instance and is located in /addon_configs/<sha>_ha_guest
+## Guest instance configuration
+No addons (file editor, terminal, ...) can be installed for the guest instance as they all attach by default to the main instance.
+If required, the configuration directory of the guest instance can be accessed using the terminal addon of the main instance and is located in `/addon_configs/<sha>_ha_guest`
 
 ---
 
-## Configuration
+## Addon Configuration
 
 The primary configuration option is the listening port (default is 8223).
+
+---
+
+## Remote Access
+
+The guest instance already include the required lines in its configuration.yaml to accept redirection from a reverse proxy, see [http reverse proxies](https://www.home-assistant.io/integrations/http/#reverse-proxies).
+
+You should install the [Nginx Proxy Manager](https://github.com/hassio-addons/addon-nginx-proxy-manager/tree/main) to connect to both main and guest instances (not the [NGINX Home Assistant SSL proxy](https://github.com/home-assistant/addons/tree/master/nginx_proxy) as it only supports one redirection)
+- Create two proxy hosts with `Websockets Support` enabled, e.g. `guest-ha.duckdns.org` and `home-ha.duckdns.org`
+- For `Scheme` use http, for `Forward Hostname / IP` the local IP address of your homeassistant device and for `Forward Port`, 8123 and 8223 for the main and guest instance respectively 
+- For https (recommended) generate a certificates from the `SSL` tab (with `force SSL` enabled)
 
