@@ -13,5 +13,8 @@ RUN mkdir -p /etc/services.d/hacs-installer
 COPY hacs-installer/run /etc/services.d/hacs-installer/run
 RUN chmod +x /etc/services.d/hacs-installer/run
 
+# Copy default configuration.yaml for homeassistant
+COPY homeassistant/configuration.yaml .
+
 # Configure the entrypoint to be the s6-overlay init script
 ENTRYPOINT [ "/init" ]
