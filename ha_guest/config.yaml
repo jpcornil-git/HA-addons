@@ -1,6 +1,6 @@
 name: "Home Assistant Guest"
 description: "A secondary, isolated instance of Home Assistant for guest users with HACS pre-installed."
-version: "0.0.1"
+version: "0.0.2"
 slug: "ha_guest"
 init: false
 arch:
