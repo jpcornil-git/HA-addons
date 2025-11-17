@@ -49,6 +49,7 @@ The primary configuration option is the listening port (default is 8223).
 ## Remote Access
 
 The guest instance already include the required lines in its configuration.yaml to accept redirection from a reverse proxy, see [http reverse proxies](https://www.home-assistant.io/integrations/http/#reverse-proxies).
+*NOTE*: Above is not correct as /config is shadowed [here](https://github.com/jpcornil-git/HA-addons/blob/main/ha_guest/config.yaml#L16) -> you have to add [the http section](https://github.com/jpcornil-git/HA-addons/blob/main/ha_guest/homeassistant/configuration.yaml#L13) manually for the time being (need to mofify the [run](https://github.com/jpcornil-git/HA-addons/blob/main/ha_guest/hacs-installer/run) script) 
 
 You should install the [Nginx Proxy Manager](https://github.com/hassio-addons/addon-nginx-proxy-manager/tree/main) to connect to both main and guest instances (not the [NGINX Home Assistant SSL proxy](https://github.com/home-assistant/addons/tree/master/nginx_proxy) as it only supports one redirection)
 - Create two proxy hosts with `Websockets Support` enabled, e.g. `guest-ha.duckdns.org` and `home-ha.duckdns.org`
